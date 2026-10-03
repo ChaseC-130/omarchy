@@ -299,7 +299,9 @@ assert(/^pragma Singleton$/m.test(wallclockCode), 'Wallclock is a singleton, so 
 assert(/readonly property int interval: 1000$/m.test(wallclockCode), 'the watchdog checks the wall clock once a second')
 assert(/readonly property int threshold: 3000$/m.test(wallclockCode), 'a gap has to beat the jitter threshold to count as a step')
 assert(/interval: root\.interval\s*\n\s*running: true\s*\n\s*repeat: true/.test(wallclockCode), 'the watchdog runs on the declared interval and keeps repeating')
-assert(/root\.lastTick = now/.test(wallclockCode), 'each tick becomes the baseline for the next one')
+assert(/^import "WallclockMath\.js" as Detect$/m.test(wallclockCode), 'Wallclock imports the tested predicate')
+assert(/^\s*signal jumped\(real deltaMs\)$/m.test(wallclockCode), 'Wallclock declares the signal the clocks listen for')
+assert(/var elapsed = now - root\.lastTick\s*root\.lastTick = now\s*if \(Detect\.isDiscontinuity\(elapsed, root\.interval, root\.threshold\)\) root\.jumped\(elapsed\)/.test(wallclockCode), 'each tick measures from the previous one, then reports a step')
 
 // resync() writes `enabled`, which in QML replaces a binding on it. A clock
 // its owner disabled needs no forcing — it re-reads when it is enabled again —
